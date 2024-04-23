@@ -1,41 +1,33 @@
 package com.huerta.errorhandler.controller.assembler;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
 
-import com.huerta.errorhandler.controller.UserController;
 import com.huerta.errorhandler.dto.UserDTO;
 
 @Component
 public class UserAssembler
-  implements RepresentationModelAssembler<UserDTO, UserResource> {
+  implements RepresentationModelAssembler<UserDTO, EntityModel<UserDTO>> {
 
   @Override
-  public UserResource toModel(UserDTO userDTO) {
-    final UserResource userResource = new UserResource(userDTO);
-    userResource.add(
-      linkTo(methodOn(UserController.class).getById(userDTO.getId()))
-        .withSelfRel()
-    );
-    return userResource;
+  public EntityModel<UserDTO> toModel(UserDTO userDTO) {
+    return EntityModel.of(userDTO);
   }
 
-  @Override
-  public CollectionModel<UserResource> toCollectionModel(
-    Iterable<? extends UserDTO> entities
+  public CollectionModel<EntityModel<UserDTO>> toCollectionModel(
+    final List<UserDTO> entities
   ) {
-    CollectionModel<UserResource> userResources = RepresentationModelAssembler.super.toCollectionModel(
-      entities
-    );
+    List<EntityModel<UserDTO>> entityModels = entities
+      .stream()
+      .map(this::toModel)
+      .collect(Collectors.toList());
+    // Create CollectionModel with links
 
-    // Add link to collection
-    userResources.add(
-      linkTo(methodOn(UserController.class).getAllUsers()).withSelfRel()
-    );
-
-    return userResources;
+    return CollectionModel.of(entityModels);
   }
 }

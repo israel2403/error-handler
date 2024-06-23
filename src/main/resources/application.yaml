@@ -7,7 +7,9 @@ spring:
     password: spring_error_handlerpassword
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
-    database-platform: org.hibernate.dialect.MySQL8Dialect
+    open-in-view: false
+    properties:
+      hibernate.transaction.jta.platform: none
     hibernate:
       ddl-auto: update
 server:
